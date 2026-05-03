@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smart Farmer Scheduler</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Segoe UI', sans-serif; background: #f1f8e9; color: #1a1a2e; }
+
+    .hero {
+      background: linear-gradient(135deg, #1b5e20, #2e7d32);
+      color: white;
+      text-align: center;
+      padding: 60px 20px;
+    }
+    .hero h1 { font-size: 48px; margin-bottom: 12px; }
+    .hero p { font-size: 18px; opacity: 0.9; margin-bottom: 30px; }
+    .badge {
+      display: inline-block;
+      background: rgba(255,255,255,0.15);
+      padding: 6px 16px;
+      border-radius: 20px;
+      font-size: 13px;
+      margin: 4px;
+    }
+
+    .container { max-width: 1000px; margin: 0 auto; padding: 40px 20px; }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 20px;
+      margin: 40px 0;
+    }
+    .card {
+      background: white;
+      border-radius: 12px;
+      padding: 24px;
+      text-align: center;
+      border-top: 4px solid #2e7d32;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+    }
+    .card .icon { font-size: 36px; margin-bottom: 12px; }
+    .card h3 { color: #2e7d32; margin-bottom: 8px; font-size: 16px; }
+    .card p { font-size: 14px; color: #555; }
+
+    .section { background: white; border-radius: 12px; padding: 32px; margin-bottom: 24px; box-shadow: 0 2px 10px rgba(0,0,0,0.06); }
+    .section h2 { color: #1b5e20; font-size: 22px; margin-bottom: 20px; border-bottom: 2px solid #e8f5e9; padding-bottom: 10px; }
+
+    .tech-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 12px;
+    }
+    .tech-item {
+      background: #e8f5e9;
+      border-radius: 8px;
+      padding: 12px;
+      text-align: center;
+      font-size: 13px;
+      font-weight: 600;
+      color: #2e7d32;
+    }
+
+    .crops-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .crop-tag {
+      background: #2e7d32;
+      color: white;
+      padding: 5px 14px;
+      border-radius: 20px;
+      font-size: 13px;
+    }
+
+    .accuracy-box {
+      background: linear-gradient(135deg, #1b5e20, #2e7d32);
+      color: white;
+      border-radius: 12px;
+      padding: 24px;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .accuracy-box .num { font-size: 64px; font-weight: bold; }
+    .accuracy-box p { font-size: 16px; opacity: 0.9; }
+
+    .stat-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+    .stat {
+      background: #e8f5e9;
+      border-radius: 10px;
+      padding: 16px;
+      text-align: center;
+    }
+    .stat .num { font-size: 28px; font-weight: bold; color: #1b5e20; }
+    .stat p { font-size: 12px; color: #555; margin-top: 4px; }
+
+    .team-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 16px;
+    }
+    .team-card {
+      background: #e8f5e9;
+      border-radius: 10px;
+      padding: 20px;
+      text-align: center;
+    }
+    .avatar {
+      width: 60px; height: 60px;
+      background: #2e7d32;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      color: white;
+      margin: 0 auto 12px;
+    }
+    .team-card h4 { font-size: 14px; color: #1b5e20; }
+    .team-card p { font-size: 12px; color: #777; margin-top: 4px; }
+
+    .btn {
+      display: inline-block;
+      background: white;
+      color: #1b5e20;
+      padding: 12px 28px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 15px;
+      margin: 8px;
+      transition: opacity 0.2s;
+    }
+    .btn:hover { opacity: 0.9; }
+    .btn-outline {
+      background: transparent;
+      color: white;
+      border: 2px solid white;
+    }
+
+    footer {
+      background: #1b5e20;
+      color: white;
+      text-align: center;
+      padding: 24px;
+      font-size: 13px;
+      opacity: 0.9;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Hero -->
+  <div class="hero">
+    <div style="font-size:56px; margin-bottom:16px;">🌾</div>
+    <h1>Smart Farmer Scheduler</h1>
+    <p>An AI/ML Based Decision-Making System for Farmers</p>
+    <div>
+      <span class="badge">🐍 Python</span>
+      <span class="badge">🤖 Random Forest</span>
+      <span class="badge">📊 Scikit-learn</span>
+      <span class="badge">🖥️ Tkinter</span>
+      <span class="badge">🌱 22 Crops</span>
+    </div>
+    <div style="margin-top: 28px;">
+      <a href="https://github.com/harshadkolhe06/smart-farmer-scheduler" class="btn">⭐ View on GitHub</a>
+      <a href="https://github.com/harshadkolhe06/smart-farmer-scheduler/raw/main/main.py" class="btn btn-outline">⬇️ Download Code</a>
+    </div>
+  </div>
+
+  <div class="container">
+
+    <!-- How it works -->
+    <div class="cards">
+      <div class="card">
+        <div class="icon">🌡️</div>
+        <h3>Input</h3>
+        <p>Enter temperature, humidity, rainfall and select crop type</p>
+      </div>
+      <div class="card">
+        <div class="icon">🤖</div>
+        <h3>Predict</h3>
+        <p>Random Forest ML model predicts if rainfall is expected</p>
+      </div>
+      <div class="card">
+        <div class="icon">📋</div>
+        <h3>Plan</h3>
+        <p>Rule engine decides irrigation, fertilizer & pest actions</p>
+      </div>
+      <div class="card">
+        <div class="icon">🌾</div>
+        <h3>Output</h3>
+        <p>Complete farming schedule shown in popup window</p>
+      </div>
+    </div>
+
+    <!-- Model Results -->
+    <div class="section">
+      <h2>📊 Model Performance</h2>
+      <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 20px; align-items: center;">
+        <div class="accuracy-box">
+          <div class="num">100%</div>
+          <p>Model Accuracy</p>
+        </div>
+        <div class="stat-grid">
+          <div class="stat"><div class="num">2200</div><p>Training Records</p></div>
+          <div class="stat"><div class="num">100</div><p>Decision Trees</p></div>
+          <div class="stat"><div class="num">22</div><p>Crops Supported</p></div>
+          <div class="stat"><div class="num">80/20</div><p>Train/Test Split</p></div>
+          <div class="stat"><div class="num">1.00</div><p>F1 Score</p></div>
+          <div class="stat"><div class="num">4</div><p>Input Features</p></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Technologies -->
+    <div class="section">
+      <h2>🛠️ Technologies Used</h2>
+      <div class="tech-grid">
+        <div class="tech-item">🐍 Python 3.9+</div>
+        <div class="tech-item">🤖 Scikit-learn</div>
+        <div class="tech-item">🐼 Pandas</div>
+        <div class="tech-item">🔢 NumPy</div>
+        <div class="tech-item">🖥️ Tkinter</div>
+        <div class="tech-item">💻 VS Code</div>
+      </div>
+    </div>
+
+    <!-- Crops -->
+    <div class="section">
+      <h2>🌱 22 Crops Supported</h2>
+      <div class="crops-grid">
+        <span class="crop-tag">Rice</span><span class="crop-tag">Maize</span>
+        <span class="crop-tag">Cotton</span><span class="crop-tag">Jute</span>
+        <span class="crop-tag">Chickpea</span><span class="crop-tag">Kidneybeans</span>
+        <span class="crop-tag">Pigeonpeas</span><span class="crop-tag">Banana</span>
+        <span class="crop-tag">Mango</span><span class="crop-tag">Apple</span>
+        <span class="crop-tag">Grapes</span><span class="crop-tag">Watermelon</span>
+        <span class="crop-tag">Coconut</span><span class="crop-tag">Papaya</span>
+        <span class="crop-tag">Orange</span><span class="crop-tag">Coffee</span>
+        <span class="crop-tag">Lentil</span><span class="crop-tag">Blackgram</span>
+        <span class="crop-tag">Mungbean</span><span class="crop-tag">Mothbeans</span>
+        <span class="crop-tag">Pomegranate</span><span class="crop-tag">Muskmelon</span>
+      </div>
+    </div>
+
+    <!-- How to Run -->
+    <div class="section">
+      <h2>🚀 How to Run</h2>
+      <pre style="background:#e8f5e9; padding:20px; border-radius:8px; font-size:13px; color:#1b5e20; overflow-x:auto;">
+# 1. Clone the repository
+git clone https://github.com/harshadkolhe06/smart-farmer-scheduler.git
+
+# 2. Go to the folder
+cd smart-farmer-scheduler
+
+# 3. Install libraries
+pip install pandas numpy scikit-learn
+
+# 4. Run the app
+python main.py</pre>
+    </div>
+
+    <!-- Team -->
+    <div class="section">
+      <h2>👨‍💻 Team</h2>
+      <div class="team-grid">
+        <div class="team-card"><div class="avatar">👤</div><h4>Student 1</h4><p>[PRN]</p></div>
+        <div class="team-card"><div class="avatar">👤</div><h4>Student 2</h4><p>[PRN]</p></div>
+        <div class="team-card"><div class="avatar">👤</div><h4>Student 3</h4><p>[PRN]</p></div>
+        <div class="team-card"><div class="avatar">👤</div><h4>Student 4</h4><p>[PRN]</p></div>
+      </div>
+      <div style="margin-top: 20px; padding: 16px; background: #e8f5e9; border-radius: 8px; font-size: 14px; color: #555;">
+        🏫 MIT Academy of Engineering, Alandi(D), Pune &nbsp;|&nbsp;
+        Creative Technologies [2301183] &nbsp;|&nbsp;
+        Track-Robotics &nbsp;|&nbsp; Sem II 2025-26
+      </div>
+    </div>
+
+  </div>
+
+  <footer>
+    🌾 Smart Farmer Scheduler &nbsp;|&nbsp; AI/ML Project &nbsp;|&nbsp;
+    MIT Academy of Engineering, Alandi(D), Pune &nbsp;|&nbsp; 2025-26
+  </footer>
+
+</body>
+</html>
