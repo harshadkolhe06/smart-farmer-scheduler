@@ -1,0 +1,269 @@
+# ============================================
+#     SMART FARMER SCHEDULER
+#     Popup Window Version
+# ============================================
+
+import tkinter as tk
+from tkinter import ttk, messagebox
+import pandas as pd
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import LabelEncoder
+
+# ============================================
+# Step 1 — Load & Train Model
+# ============================================
+
+crop_df = pd.read_csv("Crop_recommendation.csv")
+
+le = LabelEncoder()
+crop_df['crop_encoded'] = le.fit_transform(crop_df['label'])
+crop_df['rain_label']   = crop_df['rainfall'].apply(lambda x: 1 if x > 100 else 0)
+
+X = crop_df[['temperature', 'humidity', 'rainfall', 'crop_encoded']]
+y = crop_df['rain_label']
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+model = RandomForestClassifier(n_estimators=100, random_state=42)
+model.fit(X_train, y_train)
+
+# ============================================
+# Step 2 — Crop Rules
+# ============================================
+
+crop_rules = {
+    'rice':        {'fertilizer': 'Nitrogen-heavy',    'pests': 'Brown planthopper, Stem borer'},
+    'maize':       {'fertilizer': 'Balanced NPK',      'pests': 'Fall armyworm, Corn borer'},
+    'cotton':      {'fertilizer': 'Potassium-rich',    'pests': 'Bollworm, Whitefly'},
+    'jute':        {'fertilizer': 'Nitrogen-medium',   'pests': 'Semilooper, Bihar hairy caterpillar'},
+    'chickpea':    {'fertilizer': 'Phosphorus-rich',   'pests': 'Pod borer, Aphids'},
+    'kidneybeans': {'fertilizer': 'Balanced NPK',      'pests': 'Bean fly, Whitefly'},
+    'pigeonpeas':  {'fertilizer': 'Low Nitrogen',      'pests': 'Pod fly, Plume moth'},
+    'banana':      {'fertilizer': 'Potassium-heavy',   'pests': 'Banana weevil, Thrips'},
+    'mango':       {'fertilizer': 'Micronutrient mix', 'pests': 'Mango hopper, Fruit fly'},
+    'apple':       {'fertilizer': 'Calcium-rich',      'pests': 'Codling moth, Aphids'},
+    'grapes':      {'fertilizer': 'Potassium-rich',    'pests': 'Grape berry moth, Mealybug'},
+    'watermelon':  {'fertilizer': 'Balanced NPK',      'pests': 'Aphids, Cucumber beetle'},
+    'coconut':     {'fertilizer': 'Potassium-heavy',   'pests': 'Rhinoceros beetle, Eriophyid mite'},
+    'papaya':      {'fertilizer': 'Nitrogen-heavy',    'pests': 'Papaya mealybug, Whitefly'},
+    'orange':      {'fertilizer': 'Micronutrient mix', 'pests': 'Citrus psylla, Leaf miner'},
+    'coffee':      {'fertilizer': 'Nitrogen-medium',   'pests': 'Coffee borer, Mealybug'},
+    'lentil':      {'fertilizer': 'Phosphorus-rich',   'pests': 'Aphids, Pod borer'},
+    'blackgram':   {'fertilizer': 'Low Nitrogen',      'pests': 'Whitefly, Thrips'},
+    'mungbean':    {'fertilizer': 'Low Nitrogen',      'pests': 'Aphids, Pod borer'},
+    'mothbeans':   {'fertilizer': 'Low Nitrogen',      'pests': 'Whitefly, Jassids'},
+    'pomegranate': {'fertilizer': 'Potassium-rich',    'pests': 'Pomegranate butterfly, Thrips'},
+    'muskmelon':   {'fertilizer': 'Balanced NPK',      'pests': 'Aphids, Fruit fly'},
+}
+
+# ============================================
+# Step 3 — Popup Result Window
+# ============================================
+
+def show_result_popup(schedule):
+    popup = tk.Toplevel()
+    popup.title("🌾 Farming Schedule Result")
+    popup.geometry("480x420")
+    popup.resizable(False, False)
+    popup.configure(bg="#f0f7e6")
+    popup.grab_set()  # keeps focus on popup
+
+    # Header
+    tk.Label(popup,
+             text="🌾 Farming Schedule Report",
+             font=("Helvetica", 16, "bold"),
+             bg="#2e7d32", fg="white",
+             pady=12
+    ).pack(fill="x")
+
+    # Content frame
+    frame = tk.Frame(popup, bg="#f0f7e6", padx=25, pady=15)
+    frame.pack(fill="both", expand=True)
+
+    # Each row
+    rows = [
+        ("🌱 Crop",          schedule['crop']),
+        ("🌡️ Temperature",   f"{schedule['temperature']}°C"),
+        ("💧 Humidity",      f"{schedule['humidity']}%"),
+        ("🌧️ Rainfall",      f"{schedule['rainfall']} mm"),
+        ("🌦️ Rain Expected", schedule['rain']),
+        ("💦 Irrigation",    schedule['irrigation']),
+        ("🧪 Fertilizer",    schedule['fertilizer']),
+        ("🐛 Pest Alert",    schedule['pests']),
+    ]
+
+    for i, (label, value) in enumerate(rows):
+        bg_color = "#ffffff" if i % 2 == 0 else "#e8f5e9"
+
+        row_frame = tk.Frame(frame, bg=bg_color)
+        row_frame.pack(fill="x", pady=1)
+
+        tk.Label(row_frame,
+                 text=label,
+                 font=("Helvetica", 10, "bold"),
+                 bg=bg_color, fg="#2e7d32",
+                 width=18, anchor="w",
+                 padx=8, pady=6
+        ).pack(side="left")
+
+        tk.Label(row_frame,
+                 text=value,
+                 font=("Helvetica", 10),
+                 bg=bg_color, fg="#222",
+                 anchor="w",
+                 padx=8, pady=6,
+                 wraplength=260
+        ).pack(side="left")
+
+    # Close button
+    tk.Button(popup,
+              text="Close ✕",
+              font=("Helvetica", 11, "bold"),
+              bg="#c62828", fg="white",
+              relief="flat", padx=20, pady=8,
+              cursor="hand2",
+              command=popup.destroy
+    ).pack(pady=12)
+
+# ============================================
+# Step 4 — Generate Schedule
+# ============================================
+
+def generate():
+    try:
+        crop_name   = crop_var.get().lower()
+        temperature = float(temp_entry.get())
+        humidity    = float(humidity_entry.get())
+        rainfall    = float(rainfall_entry.get())
+
+        sample = pd.DataFrame([{
+            'temperature':  temperature,
+            'humidity':     humidity,
+            'rainfall':     rainfall,
+            'crop_encoded': le.transform([crop_name])[0]
+        }])
+
+        rain_pred = model.predict(sample)[0]
+        rules     = crop_rules.get(crop_name, {})
+
+        schedule = {
+            'crop':        crop_name.upper(),
+            'temperature': temperature,
+            'humidity':    humidity,
+            'rainfall':    rainfall,
+            'rain':        '🌧️ Yes — Rain expected' if rain_pred == 1 else '☀️ No — Clear weather',
+            'irrigation':  'Skip irrigation — rain is expected 🌧️' if rain_pred == 1 else 'Irrigate today — no rain expected ☀️',
+            'fertilizer':  rules.get('fertilizer', 'General purpose fertilizer'),
+            'pests':       rules.get('pests', 'No specific pest risk'),
+        }
+
+        show_result_popup(schedule)
+
+    except ValueError:
+        messagebox.showerror("Input Error", "Please enter valid numbers!")
+
+def clear():
+    temp_entry.delete(0, tk.END)
+    humidity_entry.delete(0, tk.END)
+    rainfall_entry.delete(0, tk.END)
+    crop_var.set(sorted(list(le.classes_))[0])
+
+# ============================================
+# Step 5 — Main Window
+# ============================================
+
+window = tk.Tk()
+window.title("🌾 Smart Farmer Scheduler")
+window.geometry("480x500")
+window.resizable(False, False)
+window.configure(bg="#f0f7e6")
+
+# Header
+tk.Label(window,
+         text="🌾 Smart Farmer Scheduler",
+         font=("Helvetica", 18, "bold"),
+         bg="#2e7d32", fg="white",
+         pady=15
+).pack(fill="x")
+
+tk.Label(window,
+         text="Enter conditions and get instant farming advice",
+         font=("Helvetica", 10),
+         bg="#f0f7e6", fg="#555"
+).pack(pady=8)
+
+# Input card
+card = tk.LabelFrame(window,
+                     text="  📋 Farm Conditions  ",
+                     font=("Helvetica", 11, "bold"),
+                     bg="#f0f7e6", fg="#2e7d32",
+                     padx=25, pady=20)
+card.pack(padx=25, pady=5, fill="x")
+
+# Crop dropdown
+tk.Label(card, text="🌱 Crop Type",
+         font=("Helvetica", 10, "bold"),
+         bg="#f0f7e6").grid(row=0, column=0, sticky="w", pady=8)
+crop_var = tk.StringVar()
+crop_dropdown = ttk.Combobox(card, textvariable=crop_var,
+                              values=sorted(list(le.classes_)),
+                              font=("Helvetica", 10),
+                              width=24, state="readonly")
+crop_dropdown.current(0)
+crop_dropdown.grid(row=0, column=1, padx=15, pady=8)
+
+# Temperature
+tk.Label(card, text="🌡️ Temperature (°C)",
+         font=("Helvetica", 10, "bold"),
+         bg="#f0f7e6").grid(row=1, column=0, sticky="w", pady=8)
+temp_entry = tk.Entry(card, font=("Helvetica", 10), width=26)
+temp_entry.insert(0, "28")
+temp_entry.grid(row=1, column=1, padx=15, pady=8)
+
+# Humidity
+tk.Label(card, text="💧 Humidity (%)",
+         font=("Helvetica", 10, "bold"),
+         bg="#f0f7e6").grid(row=2, column=0, sticky="w", pady=8)
+humidity_entry = tk.Entry(card, font=("Helvetica", 10), width=26)
+humidity_entry.insert(0, "70")
+humidity_entry.grid(row=2, column=1, padx=15, pady=8)
+
+# Rainfall
+tk.Label(card, text="🌧️ Rainfall (mm)",
+         font=("Helvetica", 10, "bold"),
+         bg="#f0f7e6").grid(row=3, column=0, sticky="w", pady=8)
+rainfall_entry = tk.Entry(card, font=("Helvetica", 10), width=26)
+rainfall_entry.insert(0, "120")
+rainfall_entry.grid(row=3, column=1, padx=15, pady=8)
+
+# Buttons
+btn_frame = tk.Frame(window, bg="#f0f7e6")
+btn_frame.pack(pady=15)
+
+tk.Button(btn_frame,
+          text="🌿 Generate Schedule",
+          font=("Helvetica", 12, "bold"),
+          bg="#2e7d32", fg="white",
+          relief="flat", padx=25, pady=10,
+          cursor="hand2",
+          command=generate
+).grid(row=0, column=0, padx=10)
+
+tk.Button(btn_frame,
+          text="🔄 Clear",
+          font=("Helvetica", 12, "bold"),
+          bg="#ff6f00", fg="white",
+          relief="flat", padx=25, pady=10,
+          cursor="hand2",
+          command=clear
+).grid(row=0, column=1, padx=10)
+
+# Footer
+tk.Label(window,
+         text="Smart Farmer Scheduler • AI/ML Project",
+         font=("Helvetica", 8),
+         bg="#2e7d32", fg="white",
+         pady=5
+).pack(fill="x", side="bottom")
+
+window.mainloop()
